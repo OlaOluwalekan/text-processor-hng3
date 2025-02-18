@@ -6,6 +6,8 @@ import { MdOutlineTranslate } from 'react-icons/md'
 import toast from 'react-hot-toast'
 import clsx from 'clsx'
 import ReactMarkdown from 'react-markdown'
+import pop from '../assets/pop.mp3'
+import splash from '../assets/splash.mp3'
 
 const Message = ({ content }) => {
   const [detecting, setDetecting] = useState(false)
@@ -19,8 +21,8 @@ const Message = ({ content }) => {
   const [summarizing, setSummarizing] = useState(false)
   const [downloading, setDownloading] = useState(false)
   const [downloaded, setDownloaded] = useState(0)
-  const [divBottom, setDivBottom] = useState(0)
   const transRef = useRef(null)
+  const sumRef = useRef(null)
 
   //   detector
   const detectLanguage = async (text) => {
@@ -34,11 +36,6 @@ const Message = ({ content }) => {
 
   //   translator
   const translate = async (e) => {
-    const current = e.target
-    const currentPosition = current.getBoundingClientRect()
-    // console.log(currentPosition)
-    setDivBottom(currentPosition.bottom)
-
     setTrans({ ...trans, translation: false })
     setTranslating(true)
     const translator = await ai.translator.create({
@@ -50,35 +47,21 @@ const Message = ({ content }) => {
     setTranslation(response)
     setTranslating(false)
     setTrans({ ...trans, translation: true })
+    const sound = new Audio(pop)
+    sound.play()
   }
 
-  //   useEffect(() => {
-  //     // if (transRef.current) {
-  //     //   const transHeight = transRef.current.getBoundingClientRect().height
-  //     //   setDivBottom(divBottom + transHeight)
-  //     // }
-  //     if (transRef.current) {
-  //       // Get the element's top position relative to the viewport
-  //       const rect = transRef.current.getBoundingClientRect()
-  //       // Add the current scroll position to get its position relative to the document
-  //       //   const scrollTop = rect.bottom + window.scrollY
-  //       const scrollTop = rect.bottom
-  //       console.log(scrollTop)
+  useEffect(() => {
+    if (transRef.current) {
+      transRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [translation])
 
-  //       window.scrollTo({
-  //         top: 1000,
-  //         behavior: 'smooth',
-  //       })
-  //     }
-  //   }, [translation])
-
-  //   useEffect(() => {
-  //     window.scrollTo({
-  //       left: 0,
-  //       top: divBottom,
-  //       behavior: 'smooth',
-  //     })
-  //   }, [divBottom])
+  useEffect(() => {
+    if (sumRef.current) {
+      sumRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [summary])
 
   const summarize = async () => {
     setTrans({ ...trans, summarization: false })
@@ -112,6 +95,8 @@ const Message = ({ content }) => {
     setSummary(response)
     setSummarizing(false)
     setTrans({ ...trans, summarization: true })
+    const sound = new Audio(splash)
+    sound.play()
   }
 
   //   detect language every time a message is sent
@@ -135,22 +120,11 @@ const Message = ({ content }) => {
 
   return (
     <div className='min-w-[250px] max-w-[400px] flex flex-col gap-1'>
-      <div className='w-full bg-teal-600 text-white p-2 rounded-md'>
+      <div className='w-full bg-teal-600 text-white p-2 rounded-md shake'>
         {content}
       </div>
       <div className='text-xs flex justify-end gap-2 items-center'>
-        <section
-          className='bg-orange-500/20 text-orange-700 p-1 rounded'
-          onClick={() => {
-            console.log('clicked')
-
-            window.scrollY = 600
-            // ({
-            //   top: 600,
-            //   behavior: 'smooth',
-            // })
-          }}
-        >
+        <section className='bg-orange-500/20 text-orange-700 p-1 rounded'>
           {detecting ? 'detecting...' : detectedLanguage}
         </section>
 
@@ -165,7 +139,7 @@ const Message = ({ content }) => {
           </button>
         )}
         <section className='flex items-center'>
-          <span>Translate to:</span>
+          <span className='text-[10px]'>Translate to:</span>
           <select
             className='bg-black/0 focus:outline-none text-teal-800'
             onChange={handleSelectChange}
@@ -196,7 +170,7 @@ const Message = ({ content }) => {
       </div>
 
       {translation && (
-        <div className='bg-blue-600 p-2 rounded-md' ref={transRef}>
+        <div className='bg-blue-600 p-2 rounded-md shake' ref={transRef}>
           <span className='text-xs text-red-900 bg-red-800/15 px-1 py-0.5 rounded'>
             Translated to {languageMap[targetLanguage]}
           </span>
@@ -205,16 +179,16 @@ const Message = ({ content }) => {
       )}
 
       {summary && (
-        <div className='bg-green-700 p-2 rounded-md'>
+        <div className='bg-green-700 p-2 rounded-md shake' ref={sumRef}>
           <span className='text-xs text-red-900 bg-red-800/15 px-1 py-0.5 rounded'>
-            Summarized
+            Summary
           </span>
           <ReactMarkdown className='text-white'>{summary}</ReactMarkdown>
         </div>
       )}
 
       {downloading && (
-        <div className='w-fit px-3 py-1 bg-green-600/15 text-green-700 text-sm'>
+        <div className='w-fit px-3 py-1 bg-green-600/15 text-green-700 text-sm absolute left-0 right-0 top-2 m-auto'>
           <p>{downloaded}% downloaded</p>
         </div>
       )}

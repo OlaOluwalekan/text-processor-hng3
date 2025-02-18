@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { IoSend } from 'react-icons/io5'
 import { useAppContext } from '../context/AppContext'
 import { v4 as uniqueId } from 'uuid'
+import notification from '../assets/notification.mp3'
 
 const InputForm = () => {
   const [text, setText] = useState('')
@@ -15,6 +16,8 @@ const InputForm = () => {
       setMessages([...messages, { content: text, id }])
       setText('')
     }
+    const sound = new Audio(notification)
+    sound.play()
   }
 
   return (

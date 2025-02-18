@@ -10,7 +10,7 @@ const MessageArea = () => {
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: 'smooth' })
     }
-  }, [messages, trans])
+  }, [messages])
 
   return (
     <div className='flex flex-col grow w-full mx-auto h-full overflow-auto'>
