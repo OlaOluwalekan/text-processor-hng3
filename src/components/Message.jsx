@@ -170,7 +170,7 @@ const Message = ({ content }) => {
       </div>
 
       {translation && (
-        <div className='bg-blue-600 p-2 rounded-md shake' ref={transRef}>
+        <div className='bg-blue-500 p-2 rounded-md shake' ref={transRef}>
           <span className='text-xs text-red-900 bg-red-800/15 px-1 py-0.5 rounded'>
             Translated to {languageMap[targetLanguage]}
           </span>
@@ -179,7 +179,7 @@ const Message = ({ content }) => {
       )}
 
       {summary && (
-        <div className='bg-green-700 p-2 rounded-md shake' ref={sumRef}>
+        <div className='bg-green-600 p-2 rounded-md shake' ref={sumRef}>
           <span className='text-xs text-red-900 bg-red-800/15 px-1 py-0.5 rounded'>
             Summary
           </span>
@@ -188,7 +188,8 @@ const Message = ({ content }) => {
       )}
 
       {downloading && (
-        <div className='w-fit px-3 py-1 bg-green-600/15 text-green-700 text-sm absolute left-0 right-0 top-2 m-auto'>
+        <div className='w-fit px-5 py-1 bg-orange-600 text-white text-sm absolute left-0 right-0 top-2 m-auto shadow-2xl flex flex-col justify-center items-center rounded-md'>
+          <p>Downloading Summarizer AI</p>
           <p>{downloaded}% downloaded</p>
         </div>
       )}
