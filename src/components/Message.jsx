@@ -1,0 +1,225 @@
+import { useEffect, useRef, useState } from 'react'
+import { languageMap, languageOptions } from '../data/languages'
+import { useAppContext } from '../context/AppContext'
+import { FaCompressArrowsAlt } from 'react-icons/fa'
+import { MdOutlineTranslate } from 'react-icons/md'
+import toast from 'react-hot-toast'
+import clsx from 'clsx'
+import ReactMarkdown from 'react-markdown'
+
+const Message = ({ content }) => {
+  const [detecting, setDetecting] = useState(false)
+  const [detectedLangSymbol, setDetectedLangSymbol] = useState('')
+  const [detectedLanguage, setDetectedLanguage] = useState('')
+  const [targetLanguage, setTargetLanguage] = useState('')
+  const [translating, setTranslating] = useState(false)
+  const { messages, trans, setTrans } = useAppContext()
+  const [translation, setTranslation] = useState('')
+  const [summary, setSummary] = useState('')
+  const [summarizing, setSummarizing] = useState(false)
+  const [downloading, setDownloading] = useState(false)
+  const [downloaded, setDownloaded] = useState(0)
+  const [divBottom, setDivBottom] = useState(0)
+  const transRef = useRef(null)
+
+  //   detector
+  const detectLanguage = async (text) => {
+    setDetecting(true)
+    const detector = await ai.languageDetector.create()
+    const detectedLanguages = await detector.detect(text)
+    setDetectedLangSymbol(detectedLanguages[0].detectedLanguage)
+    setDetectedLanguage(languageMap[detectedLanguages[0].detectedLanguage])
+    setDetecting(false)
+  }
+
+  //   translator
+  const translate = async (e) => {
+    const current = e.target
+    const currentPosition = current.getBoundingClientRect()
+    // console.log(currentPosition)
+    setDivBottom(currentPosition.bottom)
+
+    setTrans({ ...trans, translation: false })
+    setTranslating(true)
+    const translator = await ai.translator.create({
+      sourceLanguage: detectedLangSymbol,
+      targetLanguage: targetLanguage,
+    })
+
+    const response = await translator.translate(content)
+    setTranslation(response)
+    setTranslating(false)
+    setTrans({ ...trans, translation: true })
+  }
+
+  //   useEffect(() => {
+  //     // if (transRef.current) {
+  //     //   const transHeight = transRef.current.getBoundingClientRect().height
+  //     //   setDivBottom(divBottom + transHeight)
+  //     // }
+  //     if (transRef.current) {
+  //       // Get the element's top position relative to the viewport
+  //       const rect = transRef.current.getBoundingClientRect()
+  //       // Add the current scroll position to get its position relative to the document
+  //       //   const scrollTop = rect.bottom + window.scrollY
+  //       const scrollTop = rect.bottom
+  //       console.log(scrollTop)
+
+  //       window.scrollTo({
+  //         top: 1000,
+  //         behavior: 'smooth',
+  //       })
+  //     }
+  //   }, [translation])
+
+  //   useEffect(() => {
+  //     window.scrollTo({
+  //       left: 0,
+  //       top: divBottom,
+  //       behavior: 'smooth',
+  //     })
+  //   }, [divBottom])
+
+  const summarize = async () => {
+    setTrans({ ...trans, summarization: false })
+    const options = {
+      format: 'plain-text',
+      length: 'short',
+    }
+    const available = (await ai.summarizer.capabilities()).available
+
+    if (available === 'no') {
+      toast.error('Sorry, you device does not support this')
+      return
+    }
+
+    let summarizer = ''
+    setSummarizing(true)
+    if (available === 'readily') {
+      summarizer = await ai.summarizer.create(options)
+    } else {
+      setDownloading(true)
+      summarizer = await ai.summarizer.create(options)
+      summarizer.addEventListener('downloadprogress', (e) => {
+        setDownloaded((e.loaded / e.total) * 100)
+      })
+      await summarizer.ready
+      setDownloading(false)
+      setDownloaded(0)
+    }
+
+    const response = await summarizer.summarize(content)
+    setSummary(response)
+    setSummarizing(false)
+    setTrans({ ...trans, summarization: true })
+  }
+
+  //   detect language every time a message is sent
+  useEffect(() => {
+    detectLanguage(content)
+  }, [messages])
+
+  //   set target language every time detected language changes
+  useEffect(() => {
+    setTargetLanguage(
+      languageOptions.filter((lang) => {
+        return lang.label !== detectedLanguage
+      })[0].value
+    )
+  }, [detectedLanguage])
+
+  const handleSelectChange = (e) => {
+    setTargetLanguage(e.target.value)
+    setTranslation('')
+  }
+
+  return (
+    <div className='min-w-[250px] max-w-[400px] flex flex-col gap-1'>
+      <div className='w-full bg-teal-600 text-white p-2 rounded-md'>
+        {content}
+      </div>
+      <div className='text-xs flex justify-end gap-2 items-center'>
+        <section
+          className='bg-orange-500/20 text-orange-700 p-1 rounded'
+          onClick={() => {
+            console.log('clicked')
+
+            window.scrollY = 600
+            // ({
+            //   top: 600,
+            //   behavior: 'smooth',
+            // })
+          }}
+        >
+          {detecting ? 'detecting...' : detectedLanguage}
+        </section>
+
+        {content.length > 150 && detectedLanguage == 'English' && (
+          <button
+            className='flex gap-1 justify-center items-center hover:bg-green-600/35 px-2 py-1 rounded text-green-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-none'
+            onClick={summarize}
+            disabled={summarizing || downloading}
+          >
+            <FaCompressArrowsAlt />{' '}
+            {summarizing ? 'Summarizing...' : 'Summarize'}
+          </button>
+        )}
+        <section className='flex items-center'>
+          <span>Translate to:</span>
+          <select
+            className='bg-black/0 focus:outline-none text-teal-800'
+            onChange={handleSelectChange}
+          >
+            {languageOptions
+              .filter((language) => {
+                return language.label !== detectedLanguage
+              })
+              .map((language) => {
+                return (
+                  <option key={language.value} value={language.value}>
+                    {language.label}
+                  </option>
+                )
+              })}
+          </select>
+          <button
+            className={clsx(
+              'flex gap-1 justify-center items-center hover:bg-blue-600/35 px-2 py-1 rounded text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-none'
+            )}
+            onClick={translate}
+            disabled={translating}
+          >
+            <MdOutlineTranslate />{' '}
+            {translating ? 'Translating...' : 'Translate'}
+          </button>
+        </section>
+      </div>
+
+      {translation && (
+        <div className='bg-blue-600 p-2 rounded-md' ref={transRef}>
+          <span className='text-xs text-red-900 bg-red-800/15 px-1 py-0.5 rounded'>
+            Translated to {languageMap[targetLanguage]}
+          </span>
+          <p className='text-white'>{translation}</p>
+        </div>
+      )}
+
+      {summary && (
+        <div className='bg-green-700 p-2 rounded-md'>
+          <span className='text-xs text-red-900 bg-red-800/15 px-1 py-0.5 rounded'>
+            Summarized
+          </span>
+          <ReactMarkdown className='text-white'>{summary}</ReactMarkdown>
+        </div>
+      )}
+
+      {downloading && (
+        <div className='w-fit px-3 py-1 bg-green-600/15 text-green-700 text-sm'>
+          <p>{downloaded}% downloaded</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default Message
