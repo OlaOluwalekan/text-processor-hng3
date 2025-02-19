@@ -19,7 +19,7 @@ const MessageArea = () => {
           No messages yet
         </div>
       ) : (
-        <div className='w-[90%] max-w-[900px] mx-auto h-full flex flex-col items-end gap-2'>
+        <div className='w-[90%] max-w-[900px] mx-auto h-full flex flex-col items-end gap-2 py-2'>
           {messages.map((message) => {
             return <Message key={message.id} {...message} />
           })}

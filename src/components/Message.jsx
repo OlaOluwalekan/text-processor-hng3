@@ -139,73 +139,82 @@ const Message = ({ content }) => {
   }
 
   return (
-    <div className='min-w-[250px] max-w-[400px] flex flex-col gap-1'>
-      <div className='w-full bg-teal-600 text-white p-2 rounded-md shake'>
-        {content}
-      </div>
-      <div className='text-xs flex justify-end gap-2 items-center'>
-        <section className='bg-orange-500/20 text-orange-700 p-1 rounded'>
-          {detecting ? 'detecting...' : detectedLanguage}
-        </section>
+    <div className='w-full flex flex-col gap-1'>
+      <div className='w-full flex justify-end'>
+        <div className='min-w-[250px] max-w-[400px] md:max-w-[600px] flex flex-col gap-1'>
+          <div className='bg-teal-600 text-white p-2 rounded-md shake'>
+            {content}
+          </div>
 
-        {content.length > 150 && detectedLanguage == 'English' && (
-          <button
-            className='flex gap-1 justify-center items-center hover:bg-green-600/35 px-2 py-1 rounded text-green-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-none'
-            onClick={summarize}
-            disabled={summarizing || downloading}
-          >
-            <FaCompressArrowsAlt />{' '}
-            {summarizing ? 'Summarizing...' : 'Summarize'}
-          </button>
-        )}
-        <section className='flex items-center'>
-          <span className='text-[10px]'>Translate to:</span>
-          <select
-            className='bg-black/0 focus:outline-none text-teal-800'
-            onChange={handleSelectChange}
-          >
-            {languageOptions
-              .filter((language) => {
-                return language.label !== detectedLanguage
-              })
-              .map((language) => {
-                return (
-                  <option key={language.value} value={language.value}>
-                    {language.label}
-                  </option>
-                )
-              })}
-          </select>
-          <button
-            className={clsx(
-              'flex gap-1 justify-center items-center hover:bg-blue-600/35 px-2 py-1 rounded text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-none'
+          <div className='text-xs flex justify-end gap-2 items-center'>
+            <section className='bg-orange-500/20 text-orange-700 p-1 rounded'>
+              {detecting ? 'detecting...' : detectedLanguage}
+            </section>
+
+            {content.length > 150 && detectedLanguage == 'English' && (
+              <button
+                className='flex gap-1 justify-center items-center hover:bg-green-600/35 px-2 py-1 rounded text-green-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-none'
+                onClick={summarize}
+                disabled={summarizing || downloading}
+              >
+                <FaCompressArrowsAlt />{' '}
+                {summarizing ? 'Summarizing...' : 'Summarize'}
+              </button>
             )}
-            onClick={translate}
-            disabled={translating}
-          >
-            <MdOutlineTranslate />{' '}
-            {translating ? 'Translating...' : 'Translate'}
-          </button>
-        </section>
+            <section className='flex items-center'>
+              <span className='text-[10px]'>Translate to:</span>
+              <select
+                className='bg-black/0 focus:outline-none text-teal-800'
+                onChange={handleSelectChange}
+              >
+                {languageOptions
+                  .filter((language) => {
+                    return language.label !== detectedLanguage
+                  })
+                  .map((language) => {
+                    return (
+                      <option key={language.value} value={language.value}>
+                        {language.label}
+                      </option>
+                    )
+                  })}
+              </select>
+              <button
+                className={clsx(
+                  'flex gap-1 justify-center items-center hover:bg-blue-600/35 px-2 py-1 rounded text-blue-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-none'
+                )}
+                onClick={translate}
+                disabled={translating}
+              >
+                <MdOutlineTranslate />{' '}
+                {translating ? 'Translating...' : 'Translate'}
+              </button>
+            </section>
+          </div>
+        </div>
       </div>
 
-      {translation && (
-        <div className='bg-blue-500 p-2 rounded-md shake' ref={transRef}>
-          <span className='text-xs text-red-900 bg-red-800/15 px-1 py-0.5 rounded'>
-            Translated to {languageMap[targetLanguage]}
-          </span>
-          <p className='text-white'>{translation}</p>
-        </div>
-      )}
+      <div className='w-full flex justify-start'>
+        <div className='min-w-[250px] max-w-[400px] md:max-w-[600px] flex flex-col gap-2'>
+          {translation && (
+            <div className='bg-blue-500 p-2 rounded-md shake' ref={transRef}>
+              <span className='text-xs text-red-900 bg-red-800/15 px-1 py-0.5 rounded'>
+                Translated to {languageMap[targetLanguage]}
+              </span>
+              <p className='text-white'>{translation}</p>
+            </div>
+          )}
 
-      {summary && (
-        <div className='bg-green-600 p-2 rounded-md shake' ref={sumRef}>
-          <span className='text-xs text-red-900 bg-red-800/15 px-1 py-0.5 rounded'>
-            Summary
-          </span>
-          <ReactMarkdown className='text-white'>{summary}</ReactMarkdown>
+          {summary && (
+            <div className='bg-green-600 p-2 rounded-md shake' ref={sumRef}>
+              <span className='text-xs text-red-900 bg-red-800/15 px-1 py-0.5 rounded'>
+                Summary
+              </span>
+              <ReactMarkdown className='text-white'>{summary}</ReactMarkdown>
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {downloading && (
         <div className='w-fit px-5 py-1 bg-orange-600 text-white text-sm absolute left-0 right-0 top-2 m-auto shadow-2xl flex flex-col justify-center items-center rounded-md'>
