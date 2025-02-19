@@ -35,6 +35,10 @@ const InputForm = () => {
         onChange={(e) => setText(e.target.value)}
       ></textarea>
 
+      <article className='absolute top-2 right-2 text-xs bg-green-700/50 text-white px-2 py-0.5 rounded'>
+        <span>{text.length}</span> characters
+      </article>
+
       {text && (
         <button
           type='submit'
