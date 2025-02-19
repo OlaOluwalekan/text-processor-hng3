@@ -9,7 +9,7 @@ import ReactMarkdown from 'react-markdown'
 import pop from '../assets/pop.mp3'
 import splash from '../assets/splash.mp3'
 
-const Message = ({ content }) => {
+const Message = ({ content, id }) => {
   const [detecting, setDetecting] = useState(false)
   const [detectedLangSymbol, setDetectedLangSymbol] = useState('')
   const [detectedLanguage, setDetectedLanguage] = useState('')
@@ -147,15 +147,25 @@ const Message = ({ content }) => {
   }
 
   return (
-    <div className='w-full flex flex-col gap-1'>
+    <div
+      className='w-full flex flex-col gap-1'
+      role='article'
+      aria-label='Chat message'
+    >
       <div className='w-full flex justify-end'>
         <div className='min-w-[250px] max-w-[400px] md:max-w-[600px] flex flex-col gap-1'>
-          <div className='bg-teal-600 text-white p-2 rounded-md shake whitespace-pre-wrap'>
+          <div
+            className='bg-teal-600 text-white p-2 rounded-md shake whitespace-pre-wrap'
+            tabIndex='0'
+          >
             {content}
           </div>
 
           <div className='text-xs flex justify-end gap-2 items-center'>
-            <section className='bg-orange-500/20 text-orange-700 p-1 rounded'>
+            <section
+              className='bg-orange-500/20 text-orange-700 p-1 rounded'
+              aria-live='polite'
+            >
               {detecting ? 'detecting...' : detectedLanguage}
             </section>
 
@@ -164,16 +174,23 @@ const Message = ({ content }) => {
                 className='flex gap-1 justify-center items-center hover:bg-green-600/35 px-2 py-1 rounded text-green-800 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-none'
                 onClick={summarize}
                 disabled={summarizing || downloading}
+                aria-label='Summarize message'
               >
                 <FaCompressArrowsAlt />{' '}
                 {summarizing ? 'Summarizing...' : 'Summarize'}
               </button>
             )}
             <section className='flex items-center'>
+              {/* The visually hidden label associates the select with its purpose */}
+              <label htmlFor={`target-language-${id}`} className='sr-only'>
+                Select target language for translation
+              </label>
               <span className='text-[10px]'>Translate to:</span>
               <select
                 className='bg-black/0 focus:outline-none text-teal-800'
                 onChange={handleSelectChange}
+                id={`target-language-${id}`}
+                aria-label='Select target language'
               >
                 {languageOptions
                   .filter((language) => {
@@ -193,6 +210,7 @@ const Message = ({ content }) => {
                 )}
                 onClick={translate}
                 disabled={translating}
+                aria-label='Translate message'
               >
                 <MdOutlineTranslate />{' '}
                 {translating ? 'Translating...' : 'Translate'}
@@ -205,7 +223,11 @@ const Message = ({ content }) => {
       <div className='w-full flex justify-start'>
         <div className='min-w-[250px] max-w-[400px] md:max-w-[600px] flex flex-col gap-2'>
           {translation && (
-            <div className='bg-blue-500 p-2 rounded-md shake' ref={transRef}>
+            <div
+              className='bg-blue-500 p-2 rounded-md shake'
+              ref={transRef}
+              aria-live='polite'
+            >
               <span className='text-xs text-red-900 bg-red-800/15 px-1 py-0.5 rounded'>
                 Translated to {languageMap[targetLanguage]}
               </span>
@@ -214,7 +236,11 @@ const Message = ({ content }) => {
           )}
 
           {summary && (
-            <div className='bg-green-600 p-2 rounded-md shake' ref={sumRef}>
+            <div
+              className='bg-green-600 p-2 rounded-md shake'
+              ref={sumRef}
+              aria-live='polite'
+            >
               <span className='text-xs text-red-900 bg-red-800/15 px-1 py-0.5 rounded'>
                 Summary
               </span>
@@ -225,7 +251,13 @@ const Message = ({ content }) => {
       </div>
 
       {downloading && (
-        <div className='w-fit px-5 py-1 bg-orange-600 text-white text-sm absolute left-0 right-0 top-2 m-auto shadow-2xl flex flex-col justify-center items-center rounded-md'>
+        <div
+          className='w-fit px-5 py-1 bg-orange-600 text-white text-sm absolute left-0 right-0 top-2 m-auto shadow-2xl flex flex-col justify-center items-center rounded-md'
+          role='progressbar'
+          aria-valuemin='0'
+          aria-valuemax='100'
+          aria-valuenow={downloaded}
+        >
           <p>Downloading AI</p>
           <p>{downloaded}% downloaded</p>
         </div>

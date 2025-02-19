@@ -13,7 +13,13 @@ const MessageArea = () => {
   }, [messages])
 
   return (
-    <div className='flex flex-col grow w-full mx-auto h-full overflow-auto'>
+    <div
+      className='flex flex-col grow w-full mx-auto h-full overflow-auto'
+      role='log' // Indicates this region contains a live log of messages.
+      aria-live='polite' // Announces new messages as they arrive.
+      aria-label='Message history'
+      tabIndex='0' // Allows keyboard users to focus the message area.
+    >
       {messages.length === 0 ? (
         <div className='w-full h-full flex justify-center items-center'>
           No messages yet
