@@ -29,7 +29,7 @@ const InputForm = () => {
         name='text'
         id='text'
         placeholder='Your text here...'
-        className='textarea textarea-bordered bg-black/10 resize-none w-full border-none pr-7 h-auto placeholder:text-gray-700 font-semibold'
+        className='textarea textarea-bordered bg-white/20 resize-none w-full border-none pr-7 h-auto placeholder:text-gray-700 font-semibold'
         rows={3}
         value={text}
         onChange={(e) => setText(e.target.value)}

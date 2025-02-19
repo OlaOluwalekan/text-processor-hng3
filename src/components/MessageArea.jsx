@@ -3,7 +3,7 @@ import { useAppContext } from '../context/AppContext'
 import Message from './Message'
 
 const MessageArea = () => {
-  const { messages, trans } = useAppContext()
+  const { messages } = useAppContext()
   const bottomRef = useRef(null)
 
   useEffect(() => {

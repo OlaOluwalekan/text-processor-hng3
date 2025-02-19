@@ -4,18 +4,12 @@ const AppContext = createContext(undefined)
 
 export const AppProvider = ({ children }) => {
   const [messages, setMessages] = useState([])
-  const [trans, setTrans] = useState({
-    translation: false,
-    summarization: false,
-  })
 
   return (
     <AppContext.Provider
       value={{
         messages,
         setMessages,
-        trans,
-        setTrans,
       }}
     >
       {children}

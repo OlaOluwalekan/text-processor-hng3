@@ -15,7 +15,7 @@ const Message = ({ content }) => {
   const [detectedLanguage, setDetectedLanguage] = useState('')
   const [targetLanguage, setTargetLanguage] = useState('')
   const [translating, setTranslating] = useState(false)
-  const { messages, trans, setTrans } = useAppContext()
+  const { messages } = useAppContext()
   const [translation, setTranslation] = useState('')
   const [summary, setSummary] = useState('')
   const [summarizing, setSummarizing] = useState(false)
@@ -36,17 +36,39 @@ const Message = ({ content }) => {
 
   //   translator
   const translate = async (e) => {
-    setTrans({ ...trans, translation: false })
     setTranslating(true)
-    const translator = await ai.translator.create({
-      sourceLanguage: detectedLangSymbol,
-      targetLanguage: targetLanguage,
-    })
+    const available = (await ai.translator?.capabilities()).available
+
+    if (available === 'no') {
+      toast.error('Sorry, you device does not support this')
+      return
+    }
+
+    let translator = ''
+    if (available === 'readily') {
+      translator = await ai.translator.create({
+        sourceLanguage: detectedLangSymbol,
+        targetLanguage: targetLanguage,
+      })
+    } else {
+      setDownloading(true)
+      translator = await ai.translator.create({
+        sourceLanguage: detectedLangSymbol,
+        targetLanguage: targetLanguage,
+        monitor(m) {
+          m.addEventListener('downloadprogress', (e) => {
+            setDownloaded((e.loaded / e.total) * 100)
+          })
+        },
+      })
+
+      setDownloading(false)
+      setDownloaded(0)
+    }
 
     const response = await translator.translate(content)
     setTranslation(response)
     setTranslating(false)
-    setTrans({ ...trans, translation: true })
     const sound = new Audio(pop)
     sound.play()
   }
@@ -64,7 +86,6 @@ const Message = ({ content }) => {
   }, [summary])
 
   const summarize = async () => {
-    setTrans({ ...trans, summarization: false })
     const options = {
       format: 'plain-text',
       length: 'short',
@@ -94,7 +115,6 @@ const Message = ({ content }) => {
     const response = await summarizer.summarize(content)
     setSummary(response)
     setSummarizing(false)
-    setTrans({ ...trans, summarization: true })
     const sound = new Audio(splash)
     sound.play()
   }
@@ -189,7 +209,7 @@ const Message = ({ content }) => {
 
       {downloading && (
         <div className='w-fit px-5 py-1 bg-orange-600 text-white text-sm absolute left-0 right-0 top-2 m-auto shadow-2xl flex flex-col justify-center items-center rounded-md'>
-          <p>Downloading Summarizer AI</p>
+          <p>Downloading AI</p>
           <p>{downloaded}% downloaded</p>
         </div>
       )}
