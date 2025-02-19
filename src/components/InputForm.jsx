@@ -24,6 +24,7 @@ const InputForm = () => {
     <form
       className='flex justify-center items-center relative w-[90%] max-w-[600px] mx-auto border-2 rounded-lg mb-2 border-teal-600'
       onSubmit={handleSubmit}
+      aria-label='Message input form'
     >
       <textarea
         name='text'
@@ -33,9 +34,20 @@ const InputForm = () => {
         rows={3}
         value={text}
         onChange={(e) => setText(e.target.value)}
+        aria-label='Type your message here'
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault()
+            handleSubmit(e)
+          }
+        }}
       ></textarea>
 
-      <article className='absolute top-2 right-2 text-xs bg-green-700/50 text-white px-2 py-0.5 rounded'>
+      <article
+        className='absolute top-2 right-2 text-xs bg-green-700/50 text-white px-2 py-0.5 rounded'
+        aria-live='polite'
+        aria-atomic='true'
+      >
         <span>{text.length}</span> characters
       </article>
 
@@ -43,6 +55,7 @@ const InputForm = () => {
         <button
           type='submit'
           className='text-3xl absolute right-2 bottom-1 text-teal-800'
+          aria-label='Send message'
         >
           <IoSend />
         </button>

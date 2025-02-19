@@ -27,6 +27,14 @@ const Message = ({ content }) => {
   //   detector
   const detectLanguage = async (text) => {
     setDetecting(true)
+
+    const available = (await ai.languageDetector?.capabilities()).available
+
+    if (available === 'no') {
+      toast.error('Sorry, you device does not support language detection')
+      setDetecting(false)
+      return
+    }
     const detector = await ai.languageDetector.create()
     const detectedLanguages = await detector.detect(text)
     setDetectedLangSymbol(detectedLanguages[0].detectedLanguage)
@@ -142,7 +150,7 @@ const Message = ({ content }) => {
     <div className='w-full flex flex-col gap-1'>
       <div className='w-full flex justify-end'>
         <div className='min-w-[250px] max-w-[400px] md:max-w-[600px] flex flex-col gap-1'>
-          <div className='bg-teal-600 text-white p-2 rounded-md shake'>
+          <div className='bg-teal-600 text-white p-2 rounded-md shake whitespace-pre-wrap'>
             {content}
           </div>
 
