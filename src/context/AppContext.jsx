@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useContext, useState } from 'react'
 
-const AppContext = createContext(undefined)
+const AppContext = createContext()
 
 export const AppProvider = ({ children }) => {
   const [messages, setMessages] = useState([])
