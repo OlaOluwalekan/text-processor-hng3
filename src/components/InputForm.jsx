@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { IoSend } from 'react-icons/io5'
 import { useAppContext } from '../context/AppContext'
 import { v4 as uniqueId } from 'uuid'
@@ -6,7 +6,8 @@ import notification from '../assets/notification.mp3'
 
 const InputForm = () => {
   const [text, setText] = useState('')
-  const { messages, setMessages } = useAppContext()
+  const { messages, setMessages, setTextRef } = useAppContext()
+  const inputRef = useRef(null)
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -19,6 +20,13 @@ const InputForm = () => {
     const sound = new Audio(notification)
     sound.play()
   }
+
+  useEffect(() => {
+    setTextRef(inputRef)
+    if (inputRef.current) {
+      inputRef.current?.focus()
+    }
+  }, [messages])
 
   return (
     <form
@@ -41,6 +49,7 @@ const InputForm = () => {
             handleSubmit(e)
           }
         }}
+        ref={inputRef}
       ></textarea>
 
       <article

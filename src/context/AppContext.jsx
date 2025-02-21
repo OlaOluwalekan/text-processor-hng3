@@ -4,12 +4,15 @@ const AppContext = createContext()
 
 export const AppProvider = ({ children }) => {
   const [messages, setMessages] = useState([])
+  const [textRef, setTextRef] = useState(null)
 
   return (
     <AppContext.Provider
       value={{
         messages,
         setMessages,
+        textRef,
+        setTextRef,
       }}
     >
       {children}

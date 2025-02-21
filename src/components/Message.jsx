@@ -15,7 +15,7 @@ const Message = ({ content, id }) => {
   const [detectedLanguage, setDetectedLanguage] = useState('')
   const [targetLanguage, setTargetLanguage] = useState('')
   const [translating, setTranslating] = useState(false)
-  const { messages } = useAppContext()
+  const { messages, textRef } = useAppContext()
   const [translation, setTranslation] = useState('')
   const [summary, setSummary] = useState('')
   const [summarizing, setSummarizing] = useState(false)
@@ -79,6 +79,9 @@ const Message = ({ content, id }) => {
     setTranslating(false)
     const sound = new Audio(pop)
     sound.play()
+    if (textRef.current) {
+      textRef.current.focus()
+    }
   }
 
   useEffect(() => {
@@ -125,6 +128,10 @@ const Message = ({ content, id }) => {
     setSummarizing(false)
     const sound = new Audio(splash)
     sound.play()
+
+    if (textRef.current) {
+      textRef.current.focus()
+    }
   }
 
   //   detect language every time a message is sent
